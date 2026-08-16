@@ -1,9 +1,16 @@
 package com.saraiva.biblioteca.controller;
 
+import com.saraiva.biblioteca.dto.BookRequest;
+import com.saraiva.biblioteca.dto.BookResponse;
 import com.saraiva.biblioteca.entity.Book;
+import com.saraiva.biblioteca.mapper.BookMapper;
 import com.saraiva.biblioteca.service.BookService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -17,18 +24,31 @@ public class BookController {
     }
 
     @GetMapping
-    public List<Book> findAll(){
-        return bookService.findAll();
+    public List<BookResponse> findAll(){
+        List<Book> books = bookService.findAll();
+        List<BookResponse> responses = new ArrayList<>();
 
+        for(Book book : books){
+            responses.add(BookMapper.toResponse(book));
+        }
+
+        return responses;
     }
 
     @GetMapping("/{id}")
-    public Book findById(@PathVariable Integer id){
-        return bookService.findById(id);
+    public BookResponse findById(@PathVariable Integer id){
+        Book book = bookService.findById(id);
+        return BookMapper.toResponse(book);
     }
 
     @PostMapping
-    public Book save(@RequestBody Book book){
-        return bookService.save(book);
+    public ResponseEntity<BookResponse> save(@Valid @RequestBody BookRequest bookRequest){
+        Book savedbook = bookService.save(bookRequest);
+
+        BookResponse response = BookMapper.toResponse(savedbook);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 }

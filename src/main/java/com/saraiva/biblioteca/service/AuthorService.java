@@ -1,6 +1,7 @@
 package com.saraiva.biblioteca.service;
 
 import com.saraiva.biblioteca.entity.Author;
+import com.saraiva.biblioteca.exception.ResourceNotFoundException;
 import com.saraiva.biblioteca.repository.AuthorRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class AuthorService {
     }
 
     public Author findById(Integer id){
-        return authorRepository.findById(id).orElse(null);
+        return authorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Author not found"));
     }
 
     public Author save(Author author){

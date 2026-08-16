@@ -2,6 +2,8 @@ package com.saraiva.biblioteca.controller;
 
 import com.saraiva.biblioteca.entity.Author;
 import com.saraiva.biblioteca.service.AuthorService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,7 +29,10 @@ public class AuthorController {
     }
 
     @PostMapping
-    public Author save(@RequestBody Author author){
-        return authorService.save(author);
+    public ResponseEntity<Author> save(@RequestBody Author author){
+        Author savedauthor = authorService.save(author);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(savedauthor);
     }
 }
