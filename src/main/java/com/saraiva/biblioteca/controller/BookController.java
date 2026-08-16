@@ -2,10 +2,7 @@ package com.saraiva.biblioteca.controller;
 
 import com.saraiva.biblioteca.entity.Book;
 import com.saraiva.biblioteca.service.BookService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,5 +25,10 @@ public class BookController {
     @GetMapping("/{id}")
     public Book findById(@PathVariable Integer id){
         return bookService.findById(id);
+    }
+
+    @PostMapping
+    public Book save(@RequestBody Book book){
+        return bookService.save(book);
     }
 }

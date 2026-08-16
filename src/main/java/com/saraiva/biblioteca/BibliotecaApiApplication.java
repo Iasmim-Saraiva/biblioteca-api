@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class BibliotecaApiApplication {
 
 	public static void main(String[] args) {
-		System.out.println(System.getenv("DB_PASSWORD") != null);
 		SpringApplication.run(BibliotecaApiApplication.class, args);
 	}
 
