@@ -51,4 +51,22 @@ public class BookController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id){
+        bookService.delete(id);
+
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<BookResponse> update(@PathVariable Integer id, @Valid @RequestBody BookRequest bookRequest){
+        Book updatedbook = bookService.update(id, bookRequest);
+        BookResponse response = BookMapper.toResponse(updatedbook);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
 }

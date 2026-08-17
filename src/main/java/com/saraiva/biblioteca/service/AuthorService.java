@@ -1,5 +1,6 @@
 package com.saraiva.biblioteca.service;
 
+import com.saraiva.biblioteca.dto.AuthorRequest;
 import com.saraiva.biblioteca.entity.Author;
 import com.saraiva.biblioteca.exception.ResourceNotFoundException;
 import com.saraiva.biblioteca.repository.AuthorRepository;
@@ -24,7 +25,15 @@ public class AuthorService {
         return authorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Author not found"));
     }
 
-    public Author save(Author author){
+    public Author save(AuthorRequest authorRequest){
+        Author author = new Author();
+        author.setName(authorRequest.getName());
+
         return authorRepository.save(author);
+    }
+
+    public void delete(Integer id){
+        Author author = findById(id);
+        authorRepository.delete(author);
     }
 }

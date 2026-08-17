@@ -14,10 +14,12 @@ import java.util.List;
 public class BookService {
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
+    private final AuthorService authorService;
 
-    public BookService(BookRepository bookRepository, AuthorRepository authorRepository) {
+    public BookService(BookRepository bookRepository, AuthorRepository authorRepository, AuthorService authorService) {
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
+        this.authorService = authorService;
     }
 
     public List<Book> findAll(){
@@ -42,6 +44,21 @@ public class BookService {
         book.setPublicationYear(bookRequest.getPublicationYear());
         book.setRead(bookRequest.getRead());
 
+        return bookRepository.save(book);
+    }
+
+    public void delete(Integer id){
+        Book book = findById(id);
+        bookRepository.delete(book);
+    }
+
+    public Book update(Integer id, BookRequest bookRequest){
+        Book book = findById(id);
+        Author author = authorService.findById(bookRequest.getAuthorId());
+        book.setTitle(bookRequest.getTitle());
+        book.setRead(bookRequest.getRead());
+        book.setAuthor(author);
+        book.setPublicationYear(bookRequest.getPublicationYear());
         return bookRepository.save(book);
     }
 }
