@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class BookRequest {
-    @NotBlank
+    @NotBlank(message = "Title is required")
     private String title;
 
     @NotNull
@@ -13,7 +13,7 @@ public class BookRequest {
     @NotNull
     private Boolean read;
 
-    @NotNull
+    @NotNull(message = "Author is required")
     private Integer authorId;
 
     public BookRequest(){
