@@ -1,5 +1,6 @@
 package com.saraiva.biblioteca.service;
 
+import com.saraiva.biblioteca.dto.BookReadRequest;
 import com.saraiva.biblioteca.dto.BookRequest;
 import com.saraiva.biblioteca.entity.Author;
 import com.saraiva.biblioteca.entity.Book;
@@ -59,6 +60,12 @@ public class BookService {
         book.setRead(bookRequest.getRead());
         book.setAuthor(author);
         book.setPublicationYear(bookRequest.getPublicationYear());
+        return bookRepository.save(book);
+    }
+
+    public Book updateRead(Integer id, BookReadRequest bookReadRequest){
+        Book book = findById(id);
+        book.setRead(bookReadRequest.getRead());
         return bookRepository.save(book);
     }
 }
