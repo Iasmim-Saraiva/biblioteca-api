@@ -12,6 +12,7 @@ import com.saraiva.biblioteca.repository.BookRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,15 +28,17 @@ public class BookService {
         this.authorService = authorService;
     }
 
+    @Transactional(readOnly = true)
     public List<Book> findAll(){
         return bookRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Book findById(Integer id){
         return bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Book not found"));
     }
 
-
+    @Transactional
     public Book save(BookRequest bookRequest){
         Integer authorId = bookRequest.getAuthorId();
 
@@ -52,11 +55,13 @@ public class BookService {
         return bookRepository.save(book);
     }
 
+    @Transactional
     public void delete(Integer id){
         Book book = findById(id);
         bookRepository.delete(book);
     }
 
+    @Transactional
     public Book update(Integer id, BookRequest bookRequest){
         Book book = findById(id);
         Author author = authorService.findById(bookRequest.getAuthorId());
@@ -64,15 +69,17 @@ public class BookService {
         book.setRead(bookRequest.getRead());
         book.setAuthor(author);
         book.setPublicationYear(bookRequest.getPublicationYear());
-        return bookRepository.save(book);
+        return book;
     }
 
+    @Transactional
     public Book updateRead(Integer id, BookReadRequest bookReadRequest){
         Book book = findById(id);
         book.setRead(bookReadRequest.getRead());
-        return bookRepository.save(book);
+        return book;
     }
 
+    @Transactional(readOnly = true)
     public List<BookResponse> findByAuthorId(Integer authorId){
         authorRepository.findById(authorId).orElseThrow(() -> new ResourceNotFoundException("Author not found."));
         List<Book> list = bookRepository.findByAuthorId(authorId);
@@ -83,6 +90,7 @@ public class BookService {
         return responses;
     }
 
+    @Transactional(readOnly = true)
     public List<BookResponse> findByTitle(String title){
         List<Book> list = bookRepository.findByTitleContainingIgnoreCase(title);
         List<BookResponse> responses = list.stream()
@@ -92,6 +100,7 @@ public class BookService {
         return responses;
     }
 
+    @Transactional(readOnly = true)
     public List<BookResponse> findByRead(Boolean read){
         List<Book> list = bookRepository.findByIsRead(read);
         return list.stream()
