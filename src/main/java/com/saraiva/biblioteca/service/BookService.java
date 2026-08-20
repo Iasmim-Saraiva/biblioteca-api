@@ -2,11 +2,15 @@ package com.saraiva.biblioteca.service;
 
 import com.saraiva.biblioteca.dto.BookReadRequest;
 import com.saraiva.biblioteca.dto.BookRequest;
+import com.saraiva.biblioteca.dto.BookResponse;
 import com.saraiva.biblioteca.entity.Author;
 import com.saraiva.biblioteca.entity.Book;
 import com.saraiva.biblioteca.exception.ResourceNotFoundException;
+import com.saraiva.biblioteca.mapper.BookMapper;
 import com.saraiva.biblioteca.repository.AuthorRepository;
 import com.saraiva.biblioteca.repository.BookRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -67,5 +71,31 @@ public class BookService {
         Book book = findById(id);
         book.setRead(bookReadRequest.getRead());
         return bookRepository.save(book);
+    }
+
+    public List<BookResponse> findByAuthorId(Integer authorId){
+        authorRepository.findById(authorId).orElseThrow(() -> new ResourceNotFoundException("Author not found."));
+        List<Book> list = bookRepository.findByAuthorId(authorId);
+        List<BookResponse> responses = list.stream()
+                .map(book -> BookMapper.toResponse(book))
+                .toList();
+
+        return responses;
+    }
+
+    public List<BookResponse> findByTitle(String title){
+        List<Book> list = bookRepository.findByTitleContainingIgnoreCase(title);
+        List<BookResponse> responses = list.stream()
+                .map(book -> BookMapper.toResponse(book))
+                .toList();
+
+        return responses;
+    }
+
+    public List<BookResponse> findByRead(Boolean read){
+        List<Book> list = bookRepository.findByIsRead(read);
+        return list.stream()
+                .map(book -> BookMapper.toResponse(book))
+                .toList();
     }
 }

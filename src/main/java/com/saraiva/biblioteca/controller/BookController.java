@@ -25,15 +25,26 @@ public class BookController {
     }
 
     @GetMapping
-    public List<BookResponse> findAll(){
-        List<Book> books = bookService.findAll();
-        List<BookResponse> responses = new ArrayList<>();
+    public List<BookResponse> findAll(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Boolean read){
 
-        for(Book book : books){
-            responses.add(BookMapper.toResponse(book));
+        if(title != null){
+            return bookService.findByTitle(title);
         }
+        else if(read != null){
+            return bookService.findByRead(read);
+        }
+        else{
+            List<Book> books = bookService.findAll();
+            List<BookResponse> responses = new ArrayList<>();
 
-        return responses;
+            for(Book book : books){
+                responses.add(BookMapper.toResponse(book));
+            }
+
+            return responses;
+        }
     }
 
     @GetMapping("/{id}")
