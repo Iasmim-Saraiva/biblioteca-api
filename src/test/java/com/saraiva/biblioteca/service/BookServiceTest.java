@@ -16,8 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class BookServiceTest {
@@ -73,5 +72,14 @@ public class BookServiceTest {
         bookService.delete(1);
 
         verify(bookRepository).delete(book);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenDeletingNonExistingBook(){
+        when(bookRepository.findById(999)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> bookService.delete(999));
+
+        verify(bookRepository, never()).delete(any());
     }
 }
