@@ -9,8 +9,6 @@ import com.saraiva.biblioteca.exception.ResourceNotFoundException;
 import com.saraiva.biblioteca.mapper.BookMapper;
 import com.saraiva.biblioteca.repository.AuthorRepository;
 import com.saraiva.biblioteca.repository.BookRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -106,5 +104,14 @@ public class BookService {
         return list.stream()
                 .map(book -> BookMapper.toResponse(book))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<BookResponse> findByAuthorName(String name){
+        List<Book> list = bookRepository.findByAuthorNameContainingIgnoreCase(name);
+        List<BookResponse> responses = list.stream()
+                .map(book -> BookMapper.toResponse(book))
+                .toList();
+        return responses;
     }
 }

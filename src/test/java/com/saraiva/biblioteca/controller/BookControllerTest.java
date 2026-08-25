@@ -1,6 +1,7 @@
 package com.saraiva.biblioteca.controller;
 
 import com.saraiva.biblioteca.dto.BookRequest;
+import com.saraiva.biblioteca.dto.BookResponse;
 import com.saraiva.biblioteca.entity.Author;
 import com.saraiva.biblioteca.entity.Book;
 import com.saraiva.biblioteca.exception.ResourceNotFoundException;
@@ -125,5 +126,28 @@ public class BookControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(bookService, never()).save(any(BookRequest.class));
+    }
+
+    @Test
+    public void shouldReturnBooksWhenSearchingByAuthorName() throws Exception{
+        BookResponse response = new BookResponse();
+        response.setId(1);
+        response.setTitle("Dom Casmurro");
+        response.setPublicationYear(1899);
+        response.setRead(true);
+        response.setAuthorId(7);
+        response.setAuthorName("Machado de Assis");
+
+        List<BookResponse> responses = List.of(response);
+
+        when(bookService.findByAuthorName("machado")).thenReturn(responses);
+
+        mockMvc.perform(get("/books")
+                .param("author", "machado"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].title").value("Dom Casmurro"))
+                .andExpect(jsonPath("$[0].authorName").value("Machado de Assis"));
+
+        verify(bookService).findByAuthorName("machado");
     }
 }

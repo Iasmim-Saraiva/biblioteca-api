@@ -27,10 +27,14 @@ public class BookController {
     @GetMapping
     public List<BookResponse> findAll(
             @RequestParam(required = false) String title,
-            @RequestParam(required = false) Boolean read){
+            @RequestParam(required = false) Boolean read,
+            @RequestParam(required = false) String author){
 
         if(title != null){
             return bookService.findByTitle(title);
+        }
+        else if(author != null){
+            return bookService.findByAuthorName(author);
         }
         else if(read != null){
             return bookService.findByRead(read);

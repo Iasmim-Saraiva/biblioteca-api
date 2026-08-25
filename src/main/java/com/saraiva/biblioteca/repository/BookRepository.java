@@ -13,5 +13,5 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
 
     public List<Book> findByIsRead(Boolean read);
 
-    Book id(Integer id);
+    public List<Book> findByAuthorNameContainingIgnoreCase(String name);
 }
