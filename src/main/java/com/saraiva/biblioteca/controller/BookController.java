@@ -28,27 +28,12 @@ public class BookController {
     public List<BookResponse> findAll(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) Boolean read,
-            @RequestParam(required = false) String author){
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) Integer minYear,
+            @RequestParam(required = false) Integer maxYear){
 
-        if(title != null){
-            return bookService.findByTitle(title);
-        }
-        else if(author != null){
-            return bookService.findByAuthorName(author);
-        }
-        else if(read != null){
-            return bookService.findByRead(read);
-        }
-        else{
-            List<Book> books = bookService.findAll();
-            List<BookResponse> responses = new ArrayList<>();
-
-            for(Book book : books){
-                responses.add(BookMapper.toResponse(book));
-            }
-
-            return responses;
-        }
+        return bookService.search(title, author, read, genre, minYear, maxYear);
     }
 
     @GetMapping("/{id}")

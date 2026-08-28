@@ -11,6 +11,8 @@ import com.saraiva.biblioteca.repository.AuthorRepository;
 import com.saraiva.biblioteca.repository.BookRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.saraiva.biblioteca.specification.BookSpecification;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 
@@ -24,6 +26,41 @@ public class BookService {
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
         this.authorService = authorService;
+    }
+
+    @Transactional(readOnly = true)
+    public List<BookResponse> search(
+            String title,
+            String author,
+            Boolean read,
+            String genre,
+            Integer minYear,
+            Integer maxYear) {
+
+        Specification<Book> spec = Specification.unrestricted();
+        if (title != null) {
+            spec = spec.and(BookSpecification.titleContains(title));
+        }
+        if (author != null) {
+            spec = spec.and(BookSpecification.authorNameContains(author));
+        }
+        if (read != null) {
+            spec = spec.and(BookSpecification.hasRead(read));
+        }
+
+        if (genre != null) {
+            spec = spec.and(BookSpecification.hasGenre(genre));
+        }
+        if (minYear != null && maxYear != null) {
+            spec = spec.and(
+                    BookSpecification.publicationYearBetween(minYear, maxYear)
+            );
+        }
+        List<Book> books = bookRepository.findAll(spec);
+
+        return books.stream()
+                .map(BookMapper::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -49,6 +86,7 @@ public class BookService {
         book.setTitle(bookRequest.getTitle());
         book.setPublicationYear(bookRequest.getPublicationYear());
         book.setRead(bookRequest.getRead());
+        book.setGenre(bookRequest.getGenre());
 
         return bookRepository.save(book);
     }
@@ -109,6 +147,24 @@ public class BookService {
     @Transactional(readOnly = true)
     public List<BookResponse> findByAuthorName(String name){
         List<Book> list = bookRepository.findByAuthorNameContainingIgnoreCase(name);
+        List<BookResponse> responses = list.stream()
+                .map(book -> BookMapper.toResponse(book))
+                .toList();
+        return responses;
+    }
+
+    @Transactional(readOnly = true)
+    public List<BookResponse> findByGenre(String genre){
+        List<Book> list = bookRepository.findByGenreIgnoreCase(genre);
+        List<BookResponse> responses = list.stream()
+                .map(book -> BookMapper.toResponse(book))
+                .toList();
+        return responses;
+    }
+
+    @Transactional(readOnly = true)
+    public List<BookResponse> findByPublicationYearBetween(Integer minYear, Integer maxYear){
+        List<Book> list = bookRepository.findByPublicationYearBetween(minYear, maxYear);
         List<BookResponse> responses = list.stream()
                 .map(book -> BookMapper.toResponse(book))
                 .toList();

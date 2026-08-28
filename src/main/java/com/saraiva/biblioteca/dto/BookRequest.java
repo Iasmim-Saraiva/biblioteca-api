@@ -16,6 +16,9 @@ public class BookRequest {
     @NotNull(message = "Author is required")
     private Integer authorId;
 
+    @NotBlank(message = "Genre is required")
+    private String genre;
+
     public BookRequest(){
     }
 
@@ -49,5 +52,13 @@ public class BookRequest {
 
     public void setAuthorId(Integer authorId) {
         this.authorId = authorId;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 }

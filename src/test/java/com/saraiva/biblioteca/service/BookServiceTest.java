@@ -80,6 +80,6 @@ public class BookServiceTest {
 
         assertThrows(ResourceNotFoundException.class, () -> bookService.delete(999));
 
-        verify(bookRepository, never()).delete(any());
+        verify(bookRepository, never()).delete(any(Book.class));
     }
 }

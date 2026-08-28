@@ -22,6 +22,8 @@ public class Book {
     @JoinColumn(name = "author_id")
     private Author author;
 
+    private String genre;
+
     public Book(){
     }
 
@@ -63,5 +65,13 @@ public class Book {
 
     public void setAuthor(Author author) {
         this.author = author;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 }

@@ -13,6 +13,7 @@ public class BookMapper {
         bookResponse.setRead(book.getRead());
         bookResponse.setAuthorId(book.getAuthor().getId());
         bookResponse.setAuthorName(book.getAuthor().getName());
+        bookResponse.setGenre(book.getGenre());
 
         return bookResponse;
     }

@@ -36,23 +36,38 @@ public class BookControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    public void shouldReturnOkWhenGettingAllBooks() throws Exception{
-        Author author = new Author();
-        author.setName("Machado de Assis");
-        author.setId(1);
+    public void shouldReturnOkWhenGettingAllBooks() throws Exception {
+        BookResponse response = new BookResponse();
+        response.setId(1);
+        response.setTitle("Dom Casmurro");
+        response.setAuthorId(1);
+        response.setAuthorName("Machado de Assis");
 
-        Book book = new Book();
-        book.setTitle("Dom Casmurro");
-        book.setAuthor(author);
+        List<BookResponse> responses = List.of(response);
 
-        List<Book> books = List.of(book);
+        when(bookService.search(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        )).thenReturn(responses);
 
-        when(bookService.findAll()).thenReturn(books);
         mockMvc.perform(get("/books"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value("Dom Casmurro"))
                 .andExpect(jsonPath("$[0].authorId").value(1))
                 .andExpect(jsonPath("$[0].authorName").value("Machado de Assis"));
+
+        verify(bookService).search(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
     }
 
     @Test
@@ -90,6 +105,7 @@ public class BookControllerTest {
         request.setPublicationYear(1881);
         request.setRead(true);
         request.setAuthorId(1);
+        request.setGenre("Romance");
 
         Author author = new Author();
         author.setId(1);
@@ -100,6 +116,7 @@ public class BookControllerTest {
         savedBook.setPublicationYear(1881);
         savedBook.setRead(true);
         savedBook.setAuthor(author);
+        savedBook.setGenre("Romance");
 
         when(bookService.save(any(BookRequest.class))).thenReturn(savedBook);
 
@@ -109,7 +126,8 @@ public class BookControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("Memórias Postumas de Brás Cubas"))
                 .andExpect(jsonPath("$.authorId").value(1))
-                .andExpect(jsonPath("$.authorName").value("Machado de Assis"));
+                .andExpect(jsonPath("$.authorName").value("Machado de Assis"))
+                .andExpect(jsonPath("$.genre").value("Romance"));
     }
 
     @Test
@@ -140,7 +158,14 @@ public class BookControllerTest {
 
         List<BookResponse> responses = List.of(response);
 
-        when(bookService.findByAuthorName("machado")).thenReturn(responses);
+        when(bookService.search(
+                null,
+                "machado",
+                null,
+                null,
+                null,
+                null
+        )).thenReturn(responses);
 
         mockMvc.perform(get("/books")
                 .param("author", "machado"))
@@ -148,6 +173,88 @@ public class BookControllerTest {
                 .andExpect(jsonPath("$[0].title").value("Dom Casmurro"))
                 .andExpect(jsonPath("$[0].authorName").value("Machado de Assis"));
 
-        verify(bookService).findByAuthorName("machado");
+        verify(bookService).search(
+                null,
+                "machado",
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+    @Test
+    public void shouldReturnBooksWhenSearchingByGenre() throws Exception{
+        BookResponse response = new BookResponse();
+        response.setId(1);
+        response.setTitle("Guerra");
+        response.setRead(true);
+        response.setPublicationYear(1989);
+        response.setAuthorName("Machado");
+        response.setAuthorId(7);
+        response.setGenre("Fantasia");
+
+        List<BookResponse> responses = List.of(response);
+
+        when(bookService.search(
+                null,
+                null,
+                null,
+                "Fantasia",
+                null,
+                null
+        )).thenReturn(responses);
+
+        mockMvc.perform(get("/books")
+                .param("genre", "Fantasia"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].genre").value("Fantasia"));
+
+        verify(bookService).search(
+                null,
+                null,
+                null,
+                "Fantasia",
+                null,
+                null
+        );
+    }
+
+    @Test
+    public void shouldReturnBooksWhenSearchingByPublicationYearBetween() throws Exception{
+        BookResponse response = new BookResponse();
+        response.setId(1);
+        response.setTitle("Guerra");
+        response.setRead(true);
+        response.setPublicationYear(2019);
+        response.setAuthorName("Machado");
+        response.setAuthorId(7);
+        response.setGenre("Fantasia");
+
+        List<BookResponse> responses = List.of(response);
+
+        when(bookService.search(
+                null,
+                null,
+                null,
+                null,
+                2010,
+                2020
+        )).thenReturn(responses);
+
+        mockMvc.perform(get("/books")
+                .param("minYear", "2010")
+                .param("maxYear", "2020"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].publicationYear").value(2019));
+
+        verify(bookService).search(
+                null,
+                null,
+                null,
+                null,
+                2010,
+                2020
+        );
     }
 }

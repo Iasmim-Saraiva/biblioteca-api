@@ -7,6 +7,7 @@ public class BookResponse {
     private Boolean read;
     private Integer authorId;
     private String authorName;
+    private String genre;
 
     public BookResponse(){
     }
@@ -57,5 +58,13 @@ public class BookResponse {
 
     public void setAuthorName(String authorName) {
         this.authorName = authorName;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 }
