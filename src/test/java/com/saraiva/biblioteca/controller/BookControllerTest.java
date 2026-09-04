@@ -7,8 +7,13 @@ import com.saraiva.biblioteca.entity.Book;
 import com.saraiva.biblioteca.exception.ResourceNotFoundException;
 import com.saraiva.biblioteca.service.BookService;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
@@ -16,12 +21,14 @@ import org.springframework.http.MediaType;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @WebMvcTest(BookController.class)
 public class BookControllerTest {
@@ -44,29 +51,32 @@ public class BookControllerTest {
         response.setAuthorName("Machado de Assis");
 
         List<BookResponse> responses = List.of(response);
+        Page<BookResponse> page = new PageImpl<>(responses);
 
         when(bookService.search(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        )).thenReturn(responses);
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)
+        )).thenReturn(page);
 
         mockMvc.perform(get("/books"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("Dom Casmurro"))
-                .andExpect(jsonPath("$[0].authorId").value(1))
-                .andExpect(jsonPath("$[0].authorName").value("Machado de Assis"));
+                .andExpect(jsonPath("$.content[0].title").value("Dom Casmurro"))
+                .andExpect(jsonPath("$.content[0].authorId").value(1))
+                .andExpect(jsonPath("$.content[0].authorName").value("Machado de Assis"));
 
         verify(bookService).search(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)
         );
     }
 
@@ -157,29 +167,32 @@ public class BookControllerTest {
         response.setAuthorName("Machado de Assis");
 
         List<BookResponse> responses = List.of(response);
+        Page<BookResponse> page = new PageImpl<>(responses);
 
         when(bookService.search(
-                null,
-                "machado",
-                null,
-                null,
-                null,
-                null
-        )).thenReturn(responses);
+                isNull(),
+                eq("machado"),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)
+        )).thenReturn(page);
 
         mockMvc.perform(get("/books")
                 .param("author", "machado"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("Dom Casmurro"))
-                .andExpect(jsonPath("$[0].authorName").value("Machado de Assis"));
+                .andExpect(jsonPath("$.content[0].title").value("Dom Casmurro"))
+                .andExpect(jsonPath("$.content[0].authorName").value("Machado de Assis"));
 
         verify(bookService).search(
-                null,
-                "machado",
-                null,
-                null,
-                null,
-                null
+                isNull(),
+                eq("machado"),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)
         );
     }
 
@@ -195,28 +208,31 @@ public class BookControllerTest {
         response.setGenre("Fantasia");
 
         List<BookResponse> responses = List.of(response);
+        Page<BookResponse> page = new PageImpl<>(responses);
 
         when(bookService.search(
-                null,
-                null,
-                null,
-                "Fantasia",
-                null,
-                null
-        )).thenReturn(responses);
+                isNull(),
+                isNull(),
+                isNull(),
+                eq("Fantasia"),
+                isNull(),
+                isNull(),
+                any(Pageable.class)
+        )).thenReturn(page);
 
         mockMvc.perform(get("/books")
                 .param("genre", "Fantasia"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].genre").value("Fantasia"));
+                .andExpect(jsonPath("$.content[0].genre").value("Fantasia"));
 
         verify(bookService).search(
-                null,
-                null,
-                null,
-                "Fantasia",
-                null,
-                null
+                isNull(),
+                isNull(),
+                isNull(),
+                eq("Fantasia"),
+                isNull(),
+                isNull(),
+                any(Pageable.class)
         );
     }
 
@@ -232,29 +248,107 @@ public class BookControllerTest {
         response.setGenre("Fantasia");
 
         List<BookResponse> responses = List.of(response);
+        Page<BookResponse> page = new PageImpl<>(responses);
+
 
         when(bookService.search(
-                null,
-                null,
-                null,
-                null,
-                2010,
-                2020
-        )).thenReturn(responses);
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(2010),
+                eq(2020),
+                any(Pageable.class)
+        )).thenReturn(page);
 
         mockMvc.perform(get("/books")
                 .param("minYear", "2010")
                 .param("maxYear", "2020"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].publicationYear").value(2019));
+                .andExpect(jsonPath("$.content[0].publicationYear").value(2019));
 
         verify(bookService).search(
-                null,
-                null,
-                null,
-                null,
-                2010,
-                2020
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(2010),
+                eq(2020),
+                any(Pageable.class)
         );
+    }
+
+    @Test
+    public void shouldPassPaginationParametersToService() throws Exception{
+        Page<BookResponse> page = new PageImpl<>(List.of());
+
+        when(bookService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+        mockMvc.perform(get("/books")
+                .param("page", "2")
+                .param("size", "5"))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+
+        verify(bookService).search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                pageableCaptor.capture()
+        );
+
+        Pageable pageable = pageableCaptor.getValue();
+
+        assertEquals(2, pageable.getPageNumber());
+        assertEquals(5, pageable.getPageSize());
+    }
+
+    @Test
+    public void shouldPassSortingParametersToService() throws Exception{
+        Page<BookResponse> page = new PageImpl<>(List.of());
+
+        when(bookService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+        mockMvc.perform(get("/books")
+                .param("sort", "publicationYear,desc"))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+
+        verify(bookService).search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                pageableCaptor.capture()
+        );
+
+        Pageable pageable = pageableCaptor.getValue();
+
+        Sort.Order publicationYearOrder = pageable.getSort().getOrderFor("publicationYear");
+        assertNotNull(publicationYearOrder);
+        assertEquals(Sort.Direction.DESC, publicationYearOrder.getDirection());
     }
 }

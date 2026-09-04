@@ -9,6 +9,8 @@ import com.saraiva.biblioteca.exception.ResourceNotFoundException;
 import com.saraiva.biblioteca.mapper.BookMapper;
 import com.saraiva.biblioteca.repository.AuthorRepository;
 import com.saraiva.biblioteca.repository.BookRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.saraiva.biblioteca.specification.BookSpecification;
@@ -29,13 +31,14 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public List<BookResponse> search(
+    public Page<BookResponse> search(
             String title,
             String author,
             Boolean read,
             String genre,
             Integer minYear,
-            Integer maxYear) {
+            Integer maxYear,
+            Pageable pageable) {
 
         Specification<Book> spec = Specification.unrestricted();
         if (title != null) {
@@ -56,11 +59,9 @@ public class BookService {
                     BookSpecification.publicationYearBetween(minYear, maxYear)
             );
         }
-        List<Book> books = bookRepository.findAll(spec);
+        Page<Book> books = bookRepository.findAll(spec, pageable);
 
-        return books.stream()
-                .map(BookMapper::toResponse)
-                .toList();
+        return books.map(BookMapper::toResponse);
     }
 
     @Transactional(readOnly = true)

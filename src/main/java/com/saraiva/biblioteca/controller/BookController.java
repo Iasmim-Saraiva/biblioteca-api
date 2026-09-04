@@ -7,6 +7,8 @@ import com.saraiva.biblioteca.entity.Book;
 import com.saraiva.biblioteca.mapper.BookMapper;
 import com.saraiva.biblioteca.service.BookService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,15 +27,16 @@ public class BookController {
     }
 
     @GetMapping
-    public List<BookResponse> findAll(
+    public Page<BookResponse> findAll(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) Boolean read,
             @RequestParam(required = false) String author,
             @RequestParam(required = false) String genre,
             @RequestParam(required = false) Integer minYear,
-            @RequestParam(required = false) Integer maxYear){
+            @RequestParam(required = false) Integer maxYear,
+            Pageable pageable){
 
-        return bookService.search(title, author, read, genre, minYear, maxYear);
+        return bookService.search(title, author, read, genre, minYear, maxYear, pageable);
     }
 
     @GetMapping("/{id}")
