@@ -2,6 +2,7 @@ package com.saraiva.biblioteca.service;
 
 import com.saraiva.biblioteca.entity.Author;
 import com.saraiva.biblioteca.entity.Book;
+import com.saraiva.biblioteca.exception.InvalidYearRangeException;
 import com.saraiva.biblioteca.exception.ResourceNotFoundException;
 import com.saraiva.biblioteca.repository.AuthorRepository;
 import com.saraiva.biblioteca.repository.BookRepository;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 
 import java.util.Optional;
@@ -81,5 +84,30 @@ public class BookServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> bookService.delete(999));
 
         verify(bookRepository, never()).delete(any(Book.class));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenMinYearIsGreaterThanMaxYear() {
+
+        Pageable pageable = Pageable.unpaged();
+
+        assertThrows(
+                InvalidYearRangeException.class,
+                () -> bookService.search(
+                        null,
+                        null,
+                        null,
+                        null,
+                        2020,
+                        2000,
+                        pageable
+                )
+        );
+
+        verify(bookRepository, never())
+                .findAll(
+                        any(Specification.class),
+                        any(Pageable.class)
+                );
     }
 }

@@ -1,9 +1,12 @@
 package com.saraiva.biblioteca.controller;
 
+import com.saraiva.biblioteca.dto.AuthorCountResponse;
 import com.saraiva.biblioteca.dto.BookRequest;
 import com.saraiva.biblioteca.dto.BookResponse;
+import com.saraiva.biblioteca.dto.GenreCountResponse;
 import com.saraiva.biblioteca.entity.Author;
 import com.saraiva.biblioteca.entity.Book;
+import com.saraiva.biblioteca.exception.InvalidYearRangeException;
 import com.saraiva.biblioteca.exception.ResourceNotFoundException;
 import com.saraiva.biblioteca.service.BookService;
 import org.junit.jupiter.api.Test;
@@ -26,9 +29,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(BookController.class)
 public class BookControllerTest {
@@ -350,5 +352,144 @@ public class BookControllerTest {
         Sort.Order publicationYearOrder = pageable.getSort().getOrderFor("publicationYear");
         assertNotNull(publicationYearOrder);
         assertEquals(Sort.Direction.DESC, publicationYearOrder.getDirection());
+    }
+
+    @Test
+    public void shouldReturnQuantityOfBooks() throws Exception{
+        when(bookService.countAllBooks()).thenReturn(12L);
+
+        mockMvc.perform(get("/books/stats/count"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("12"));
+
+        verify(bookService).countAllBooks();
+    }
+
+    @Test
+    public void shouldReturnBookCountByGenre() throws Exception{
+        GenreCountResponse fantasy = new GenreCountResponse("Fantasia", 3L);
+        GenreCountResponse romance = new GenreCountResponse("Romance", 5L);
+        List<GenreCountResponse> responses = List.of(fantasy, romance);
+
+        when(bookService.countBooksByGenre()).thenReturn(responses);
+
+        mockMvc.perform(get("/books/stats/genres"))
+                .andExpect(jsonPath("$[0].genre").value("Fantasia"))
+                .andExpect(jsonPath("$[0].count").value(3))
+                .andExpect(jsonPath("$[1].genre").value("Romance"))
+                .andExpect(jsonPath("$[1].count").value(5));
+
+        verify(bookService).countBooksByGenre();
+    }
+
+    @Test
+    public void shouldReturnBookCountByAuthor() throws Exception{
+        AuthorCountResponse machado = new AuthorCountResponse("Machado de Assis", 5L);
+        AuthorCountResponse king = new AuthorCountResponse("Stephen King", 2L);
+        List<AuthorCountResponse> responses = List.of(machado, king);
+
+        when(bookService.countBooksByAuthor()).thenReturn(responses);
+
+        mockMvc.perform(get("/books/stats/authors"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].authorName").value("Machado de Assis"))
+                .andExpect(jsonPath("$[0].count").value(5))
+                .andExpect(jsonPath("$[1].authorName").value("Stephen King"))
+                .andExpect(jsonPath("$[1].count").value(2));
+
+        verify(bookService).countBooksByAuthor();
+    }
+
+    @Test
+    public void shouldPassOnlyMinYearToSearch() throws Exception {
+
+        Page<BookResponse> page = new PageImpl<>(List.of());
+
+        when(bookService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(2000),
+                isNull(),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+        mockMvc.perform(get("/books")
+                        .param("minYear", "2000"))
+                .andExpect(status().isOk());
+
+        verify(bookService).search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(2000),
+                isNull(),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    public void shouldPassOnlyMaxYearToSearch() throws Exception {
+
+        Page<BookResponse> page = new PageImpl<>(List.of());
+
+        when(bookService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(2000),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+        mockMvc.perform(get("/books")
+                        .param("maxYear", "2000"))
+                .andExpect(status().isOk());
+
+        verify(bookService).search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(2000),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    public void shouldReturnBadRequestWhenMinYearIsGreaterThanMaxYear() throws Exception {
+
+        when(bookService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(2020),
+                eq(2000),
+                any(Pageable.class)
+        )).thenThrow(
+                new InvalidYearRangeException(
+                        "minYear cannot be greater than maxYear"
+                )
+        );
+
+        mockMvc.perform(get("/books")
+                        .param("minYear", "2020")
+                        .param("maxYear", "2000"))
+                .andExpect(status().isBadRequest());
+
+        verify(bookService).search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(2020),
+                eq(2000),
+                any(Pageable.class)
+        );
     }
 }

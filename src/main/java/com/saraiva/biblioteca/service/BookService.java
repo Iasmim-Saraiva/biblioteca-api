@@ -1,10 +1,9 @@
 package com.saraiva.biblioteca.service;
 
-import com.saraiva.biblioteca.dto.BookReadRequest;
-import com.saraiva.biblioteca.dto.BookRequest;
-import com.saraiva.biblioteca.dto.BookResponse;
+import com.saraiva.biblioteca.dto.*;
 import com.saraiva.biblioteca.entity.Author;
 import com.saraiva.biblioteca.entity.Book;
+import com.saraiva.biblioteca.exception.InvalidYearRangeException;
 import com.saraiva.biblioteca.exception.ResourceNotFoundException;
 import com.saraiva.biblioteca.mapper.BookMapper;
 import com.saraiva.biblioteca.repository.AuthorRepository;
@@ -40,6 +39,10 @@ public class BookService {
             Integer maxYear,
             Pageable pageable) {
 
+        if(minYear != null && maxYear != null && minYear>maxYear){
+            throw new InvalidYearRangeException("minYear cannot be greater than maxYear");
+        }
+
         Specification<Book> spec = Specification.unrestricted();
         if (title != null) {
             spec = spec.and(BookSpecification.titleContains(title));
@@ -58,6 +61,12 @@ public class BookService {
             spec = spec.and(
                     BookSpecification.publicationYearBetween(minYear, maxYear)
             );
+        }
+        else if(minYear != null){
+            spec = spec.and(BookSpecification.publicationYearGreaterThanOrEqualTo(minYear));
+        }
+        else if(maxYear != null){
+            spec = spec.and(BookSpecification.publicationYearLessThanOrEqualTo(maxYear));
         }
         Page<Book> books = bookRepository.findAll(spec, pageable);
 
@@ -128,47 +137,17 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public List<BookResponse> findByTitle(String title){
-        List<Book> list = bookRepository.findByTitleContainingIgnoreCase(title);
-        List<BookResponse> responses = list.stream()
-                .map(book -> BookMapper.toResponse(book))
-                .toList();
-
-        return responses;
+    public long countAllBooks(){
+        return bookRepository.count();
     }
 
     @Transactional(readOnly = true)
-    public List<BookResponse> findByRead(Boolean read){
-        List<Book> list = bookRepository.findByIsRead(read);
-        return list.stream()
-                .map(book -> BookMapper.toResponse(book))
-                .toList();
+    public List<GenreCountResponse> countBooksByGenre(){
+        return bookRepository.countBooksByGenre();
     }
 
     @Transactional(readOnly = true)
-    public List<BookResponse> findByAuthorName(String name){
-        List<Book> list = bookRepository.findByAuthorNameContainingIgnoreCase(name);
-        List<BookResponse> responses = list.stream()
-                .map(book -> BookMapper.toResponse(book))
-                .toList();
-        return responses;
-    }
-
-    @Transactional(readOnly = true)
-    public List<BookResponse> findByGenre(String genre){
-        List<Book> list = bookRepository.findByGenreIgnoreCase(genre);
-        List<BookResponse> responses = list.stream()
-                .map(book -> BookMapper.toResponse(book))
-                .toList();
-        return responses;
-    }
-
-    @Transactional(readOnly = true)
-    public List<BookResponse> findByPublicationYearBetween(Integer minYear, Integer maxYear){
-        List<Book> list = bookRepository.findByPublicationYearBetween(minYear, maxYear);
-        List<BookResponse> responses = list.stream()
-                .map(book -> BookMapper.toResponse(book))
-                .toList();
-        return responses;
+    public List<AuthorCountResponse> countBooksByAuthor(){
+        return bookRepository.countBooksByAuthor();
     }
 }

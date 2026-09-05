@@ -50,4 +50,11 @@ public class AuthorService {
         }
         authorRepository.delete(author);
     }
+
+    @Transactional
+    public Author update(Integer id, AuthorRequest authorRequest){
+        Author author = authorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Author not found"));
+        author.setName(authorRequest.getName());
+        return author;
+    }
 }

@@ -44,4 +44,14 @@ public class BookSpecification {
                         maxYear
                 ));
     }
+
+    public static Specification<Book> publicationYearGreaterThanOrEqualTo(Integer minYear){
+        return ((root, query, criteriaBuilder) ->
+                criteriaBuilder.greaterThanOrEqualTo(root.get("publicationYear"), minYear));
+    }
+
+    public static Specification<Book> publicationYearLessThanOrEqualTo(Integer maxYear){
+        return ((root, query, criteriaBuilder) ->
+                criteriaBuilder.lessThanOrEqualTo(root.get("publicationYear"), maxYear));
+    }
 }

@@ -1,8 +1,6 @@
 package com.saraiva.biblioteca.controller;
 
-import com.saraiva.biblioteca.dto.BookReadRequest;
-import com.saraiva.biblioteca.dto.BookRequest;
-import com.saraiva.biblioteca.dto.BookResponse;
+import com.saraiva.biblioteca.dto.*;
 import com.saraiva.biblioteca.entity.Book;
 import com.saraiva.biblioteca.mapper.BookMapper;
 import com.saraiva.biblioteca.service.BookService;
@@ -13,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -82,5 +79,20 @@ public class BookController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
+    }
+
+    @GetMapping("/stats/count")
+    public long countAllBooks(){
+        return bookService.countAllBooks();
+    }
+
+    @GetMapping("/stats/genres")
+    public List<GenreCountResponse> countBooksByGenre(){
+        return bookService.countBooksByGenre();
+    }
+
+    @GetMapping("/stats/authors")
+    public List<AuthorCountResponse> countBooksByAuthor(){
+        return bookService.countBooksByAuthor();
     }
 }

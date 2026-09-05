@@ -1,5 +1,6 @@
 package com.saraiva.biblioteca.service;
 
+import com.saraiva.biblioteca.dto.AuthorRequest;
 import com.saraiva.biblioteca.entity.Author;
 import com.saraiva.biblioteca.entity.Book;
 import com.saraiva.biblioteca.exception.ResourceConflictException;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -45,5 +47,42 @@ public class AuthorServiceTest {
         assertThrows(ResourceConflictException.class, () -> authorService.delete(1));
 
         verify(authorRepository, never()).delete(any());
+    }
+
+    @Test
+    public void shouldUpdateAuthor() {
+
+        Author author = new Author();
+        author.setId(1);
+        author.setName("Nome errado");
+
+        AuthorRequest request = new AuthorRequest();
+        request.setName("Machado de Assis");
+
+        when(authorRepository.findById(1))
+                .thenReturn(Optional.of(author));
+
+        Author result = authorService.update(1, request);
+
+        assertEquals("Machado de Assis", result.getName());
+
+        verify(authorRepository).findById(1);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenUpdatingNonExistingAuthor() {
+
+        AuthorRequest request = new AuthorRequest();
+        request.setName("Machado de Assis");
+
+        when(authorRepository.findById(999))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> authorService.update(999, request)
+        );
+
+        verify(authorRepository).findById(999);
     }
 }
