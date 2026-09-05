@@ -37,6 +37,7 @@ public class AuthorService {
     public Author save(AuthorRequest authorRequest){
         Author author = new Author();
         author.setName(authorRequest.getName());
+        author.setNationality(authorRequest.getNationality());
 
         return authorRepository.save(author);
     }
@@ -55,6 +56,7 @@ public class AuthorService {
     public Author update(Integer id, AuthorRequest authorRequest){
         Author author = authorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Author not found"));
         author.setName(authorRequest.getName());
+        author.setNationality(authorRequest.getNationality());
         return author;
     }
 }

@@ -7,6 +7,8 @@ public class AuthorRequest {
     @NotBlank(message = "Name is required")
     private String name;
 
+    private String nationality;
+
     public AuthorRequest(){
     }
 
@@ -16,5 +18,13 @@ public class AuthorRequest {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getNationality() {
+        return nationality;
+    }
+
+    public void setNationality(String nationality) {
+        this.nationality = nationality;
     }
 }

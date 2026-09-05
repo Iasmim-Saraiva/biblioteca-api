@@ -9,6 +9,7 @@ public class AuthorMapper {
         AuthorResponse authorResponse = new AuthorResponse();
         authorResponse.setId(author.getId());
         authorResponse.setName(author.getName());
+        authorResponse.setNationality(author.getNationality());
 
         return authorResponse;
     }
