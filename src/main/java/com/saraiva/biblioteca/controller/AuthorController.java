@@ -7,6 +7,7 @@ import com.saraiva.biblioteca.entity.Author;
 import com.saraiva.biblioteca.mapper.AuthorMapper;
 import com.saraiva.biblioteca.service.AuthorService;
 import com.saraiva.biblioteca.service.BookService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(
+        name = "Authors",
+        description = "Operations for managing authors"
+)
 @RestController
 @RequestMapping("/authors")
 public class AuthorController {
